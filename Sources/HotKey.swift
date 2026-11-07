@@ -1,14 +1,14 @@
 import AppKit
 import Carbon.HIToolbox
 
-/// Raccourci global enregistré via Carbon : fonctionne dans toutes les apps
-/// et ne requiert pas l'autorisation Accessibilité.
+/// Global shortcut registered through Carbon: works in every app and needs no
+/// Accessibility permission.
 final class HotKeyCenter {
     static let shared = HotKeyCenter()
 
     struct Shortcut: Equatable {
         var keyCode: UInt32
-        /// Combinaison Carbon : cmdKey, shiftKey, optionKey, controlKey
+        /// Carbon modifier mask: cmdKey, shiftKey, optionKey, controlKey
         var modifiers: UInt32
         var label: String
     }

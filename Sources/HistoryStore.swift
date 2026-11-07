@@ -8,9 +8,9 @@ enum ClipKind: String, Codable {
 struct ClipItem: Codable, Identifiable, Equatable {
     var id: String = UUID().uuidString
     var kind: ClipKind
-    /// Texte complet pour .text, libellé descriptif pour .image
+    /// Full text for .text, a descriptive label for .image
     var text: String
-    /// Nom de fichier dans Images/ pour .image
+    /// File name inside Images/ for .image
     var imageFile: String?
     var date: Date
     var sourceApp: String?
@@ -18,7 +18,7 @@ struct ClipItem: Codable, Identifiable, Equatable {
 
     static func == (a: ClipItem, b: ClipItem) -> Bool { a.id == b.id }
 
-    /// Aperçu sur une ligne, pour l'affichage dans la liste
+    /// One-line preview, for the list
     var preview: String {
         let collapsed = text
             .replacingOccurrences(of: "\r\n", with: " ⏎ ")
@@ -47,7 +47,7 @@ struct ClipItem: Codable, Identifiable, Equatable {
     }()
 }
 
-/// Stockage de l'historique : en mémoire + persistance JSON dans Application Support.
+/// History storage: in memory, persisted as JSON in Application Support.
 final class HistoryStore {
     static let shared = HistoryStore()
 
@@ -56,7 +56,7 @@ final class HistoryStore {
     let dir: URL
     let imagesDir: URL
 
-    /// Nombre maximum d'éléments non épinglés conservés.
+    /// Maximum number of unpinned items kept.
     var maxItems: Int {
         get {
             let v = UserDefaults.standard.integer(forKey: "maxItems")
@@ -78,7 +78,7 @@ final class HistoryStore {
         load()
     }
 
-    // MARK: - Lecture / écriture disque
+    // MARK: - Disk read / write
 
     private func load() {
         guard let data = try? Data(contentsOf: fileURL) else { return }
@@ -103,7 +103,7 @@ final class HistoryStore {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // Doublon : on remonte l'élément existant en tête au lieu de dupliquer.
+        // Duplicate: move the existing item back to the top instead of adding a copy.
         if let idx = items.firstIndex(where: { $0.kind == .text && $0.text == string }) {
             var existing = items.remove(at: idx)
             existing.date = Date()
@@ -167,7 +167,7 @@ final class HistoryStore {
         NotificationCenter.default.post(name: .historyChanged, object: nil)
     }
 
-    /// Les éléments épinglés restent toujours en haut, le reste par date décroissante.
+    /// Pinned items always stay on top, the rest sorted newest first.
     private func sortPinnedFirst() {
         items.sort { a, b in
             if a.pinned != b.pinned { return a.pinned }
@@ -203,7 +203,7 @@ final class HistoryStore {
         return NSImage(contentsOf: imagesDir.appendingPathComponent(file))
     }
 
-    /// Filtre insensible à la casse et aux accents.
+    /// Filter, ignoring case and accents.
     func filtered(_ query: String) -> [ClipItem] {
         let q = query.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return items }

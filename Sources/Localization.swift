@@ -1,8 +1,5 @@
 import Foundation
 
-/// Localisation minimale, sans fichiers .strings : l'app suit la langue du
-/// système. Français si la langue préférée commence par « fr », anglais sinon.
-///
 /// Minimal localisation, no .strings files: the app follows the system
 /// language. French when the preferred language starts with "fr", else English.
 enum L {
@@ -16,9 +13,9 @@ enum L {
         isFrench ? fr : en
     }
 
-    /// Nombre accordé : `L.count(3, en: "item", fr: "élément")` → "3 items" / "3 éléments".
-    /// L'anglais met le pluriel dès que n ≠ 1, le français seulement au-delà de 1.
-    /// `enPlural` sert aux pluriels irréguliers (« match » → « matches »).
+    /// Agreed count: `L.count(3, en: "item", fr: "élément")` → "3 items" / "3 éléments".
+    /// English pluralises as soon as n ≠ 1, French only above 1.
+    /// `enPlural` covers irregular plurals ("match" → "matches").
     static func count(_ n: Int, en: String, enPlural: String? = nil, fr: String) -> String {
         if isFrench {
             return "\(n) " + (n > 1 ? fr + "s" : fr)
@@ -26,7 +23,7 @@ enum L {
         return "\(n) " + (n == 1 ? en : (enPlural ?? en + "s"))
     }
 
-    /// Locale utilisée pour les dates relatives (« 2 min ago » / « il y a 2 min »).
+    /// Locale used for relative dates ("2 min ago" / "il y a 2 min").
     static var dateLocale: Locale {
         isFrench ? Locale(identifier: "fr_FR") : Locale(identifier: "en_US")
     }

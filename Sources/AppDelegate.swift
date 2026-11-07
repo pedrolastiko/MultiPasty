@@ -20,9 +20,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         if !Paster.isTrusted {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                // Déclenche la boîte de dialogue système. C'est elle — et elle seule —
-                // qui inscrit l'app dans la liste Accessibilité avec l'empreinte du
-                // binaire en cours d'exécution. Cocher une entrée périmée ne suffit pas.
+                // Triggers the system dialog. That dialog — and nothing else —
+                // registers the app in the Accessibility list with the code hash of
+                // the binary now running. Ticking a stale entry does not do it.
                 Paster.requestTrust()
             }
         }
@@ -32,14 +32,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         ClipboardMonitor.shared.stop()
     }
 
-    /// Relancer l'app alors qu'elle tourne déjà (double-clic dans le Finder,
-    /// clic sur l'icône du Dock) ouvre simplement l'historique.
+    /// Relaunching the app while it is already running (double-click in the
+    /// Finder, click on the Dock icon) simply opens the history.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         PopupController.shared.show()
         return true
     }
 
-    // MARK: - Icône de la barre de menus
+    // MARK: - Menu bar icon
 
     private func buildStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -82,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // Choix du raccourci
+        // Shortcut choice
         let shortcutItem = NSMenuItem(title: L.t("Global shortcut", "Raccourci global"),
                                       action: nil, keyEquivalent: "")
         let shortcutMenu = NSMenu()
@@ -96,7 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         shortcutItem.submenu = shortcutMenu
         menu.addItem(shortcutItem)
 
-        // Taille de l'historique
+        // History size
         let sizeItem = NSMenuItem(title: L.t("Items kept", "Éléments conservés"),
                                   action: nil, keyEquivalent: "")
         let sizeMenu = NSMenu()
@@ -163,9 +163,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Paster.openAccessibilitySettings()
     }
 
-    /// Réinscrit l'app auprès du système puis ouvre le volet Accessibilité.
-    /// Si une entrée « MultiPasty » périmée est déjà présente dans la liste,
-    /// il faut la retirer avec le bouton « − » avant de recocher.
+    /// Registers the app with the system again, then opens the Accessibility pane.
+    /// If a stale "MultiPasty" entry is already in the list, remove it with the
+    /// "−" button before switching the new one on.
     @objc private func fixAccessibility() {
         Paster.requestTrust()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -177,7 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.terminate(nil)
     }
 
-    // MARK: - Lancement au démarrage
+    // MARK: - Launch at login
 
     private var isLaunchAtLoginEnabled: Bool {
         if #available(macOS 13.0, *) {
@@ -203,7 +203,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    // MARK: - Autorisation Accessibilité
+    // MARK: - Accessibility permission
 
     private var accessibilityAlertShown = false
 
@@ -238,7 +238,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         """)
         alert.addButton(withTitle: L.t("Open Settings", "Ouvrir les réglages"))
         let later = alert.addButton(withTitle: firstLaunch ? L.t("Later", "Plus tard") : "OK")
-        later.keyEquivalent = "\u{1b}"   // Échap referme l'alerte
+        later.keyEquivalent = "\u{1b}"   // esc dismisses the alert
         alert.alertStyle = .informational
 
         NSApp.activate(ignoringOtherApps: true)

@@ -1,14 +1,14 @@
 import AppKit
 
-// MARK: - Panneau
+// MARK: - Panel
 
 final class PopupPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 }
 
-/// Vue racine : capte toutes les touches (le panneau n'a pas de champ de saisie,
-/// la frappe alimente directement le filtre).
+/// Root view: captures every key (the panel has no text field, typing feeds
+/// the filter directly).
 final class KeyCatchingView: NSView {
     weak var controller: PopupController?
     override var acceptsFirstResponder: Bool { true }
@@ -24,7 +24,7 @@ final class KeyCatchingView: NSView {
     }
 }
 
-// MARK: - Ligne de la liste
+// MARK: - List row
 
 final class RoundedRowView: NSTableRowView {
     override func drawSelection(in dirtyRect: NSRect) {
@@ -118,7 +118,7 @@ final class ClipRowView: NSView {
     }
 }
 
-// MARK: - Contrôleur du popup
+// MARK: - Popup controller
 
 final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegate {
     static let shared = PopupController()
@@ -151,14 +151,14 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
                                                selector: #selector(historyChanged),
                                                name: .historyChanged,
                                                object: nil)
-        // Un clic ailleurs retire le focus au panneau : on le referme.
+        // A click elsewhere takes key focus away from the panel: close it.
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(panelResignedKey),
                                                name: NSWindow.didResignKeyNotification,
                                                object: panel)
     }
 
-    // MARK: Construction de l'interface
+    // MARK: Building the interface
 
     private func buildPanel() {
         panel = PopupPanel(contentRect: NSRect(x: 0, y: 0, width: panelWidth, height: 300),
@@ -249,7 +249,7 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         footerLabel.frame = NSRect(x: 8, y: 6, width: size.width - 16, height: 14)
     }
 
-    // MARK: Affichage
+    // MARK: Showing
 
     func toggle() {
         isVisible ? hide() : show()
@@ -273,8 +273,8 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
 
     @objc private func panelResignedKey() {
         guard panel.isVisible else { return }
-        // Garde : une alerte système qui s'affiche juste après l'ouverture
-        // ne doit pas refermer le panneau dans la foulée.
+        // Guard: a system alert appearing right after the panel opens must not
+        // close it straight away.
         if let t = shownAt, Date().timeIntervalSince(t) < 0.4 { return }
         hide()
     }
@@ -377,7 +377,7 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         paste(results[row])
     }
 
-    // MARK: Clavier
+    // MARK: Keyboard
 
     func handleKeyEquivalent(_ event: NSEvent) -> Bool {
         guard panel.isVisible else { return false }
@@ -385,7 +385,7 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         guard mods.contains(.command) else { return false }
         let chars = event.charactersIgnoringModifiers ?? ""
 
-        // ⌘1 … ⌘9 : collage direct
+        // ⌘1 … ⌘9: direct paste
         if let digit = Int(chars), digit >= 1, digit <= 9 {
             if results.indices.contains(digit - 1) {
                 paste(results[digit - 1])
@@ -393,12 +393,12 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
             }
             return true
         }
-        // ⌘⌫ : supprimer l'élément sélectionné
+        // ⌘⌫: delete the selected item
         if event.keyCode == 51 {
             deleteSelected()
             return true
         }
-        // ⌘P : épingler / désépingler
+        // ⌘P: pin / unpin
         if chars.lowercased() == "p" {
             if let item = selectedItem() {
                 HistoryStore.shared.togglePin(item)
@@ -406,7 +406,7 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
             }
             return true
         }
-        // ⌘⌦ ou ⌘K : vider l'historique
+        // ⌘⌦ or ⌘K: clear the history
         if chars.lowercased() == "k" {
             HistoryStore.shared.clearAll()
             refresh(resetSelection: true)
@@ -425,25 +425,25 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         case 36, 76: // return / enter
             if let item = selectedItem() { paste(item) }
             return true
-        case 125: // flèche bas
+        case 125: // arrow down
             move(by: 1)
             return true
-        case 126: // flèche haut
+        case 126: // arrow up
             move(by: -1)
             return true
-        case 121: // page suivante
+        case 121: // page down
             move(by: maxVisibleRows)
             return true
-        case 116: // page précédente
+        case 116: // page up
             move(by: -maxVisibleRows)
             return true
-        case 115: // début
+        case 115: // home
             moveTo(0)
             return true
-        case 119: // fin
+        case 119: // end
             moveTo(results.count - 1)
             return true
-        case 51: // retour arrière
+        case 51: // backspace
             if !filter.isEmpty { filter = String(filter.dropLast()) }
             return true
         default:
@@ -467,8 +467,8 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         guard !results.isEmpty else { return }
         let current = tableView.selectedRow
         var next = current + delta
-        if delta == 1, current == results.count - 1 { next = 0 }           // boucle en bas
-        else if delta == -1, current <= 0 { next = results.count - 1 }     // boucle en haut
+        if delta == 1, current == results.count - 1 { next = 0 }           // wrap at the bottom
+        else if delta == -1, current <= 0 { next = results.count - 1 }     // wrap at the top
         moveTo(next)
     }
 
@@ -490,16 +490,16 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
         }
     }
 
-    // MARK: Collage
+    // MARK: Pasting
 
     private func paste(_ item: ClipItem) {
         ClipboardMonitor.shared.write(item)
         hide()
-        NSApp.hide(nil)   // rend la main à l'application précédente
+        NSApp.hide(nil)   // hand control back to the previous application
 
         guard Paster.isTrusted else {
-            // Sans l'autorisation Accessibilité, le contenu est tout de même copié :
-            // l'utilisateur n'a plus qu'à faire ⌘V lui-même.
+            // Without the Accessibility permission the content is still copied:
+            // the user only has to press ⌘V themselves.
             AppDelegate.shared?.showAccessibilityAlert()
             return
         }
@@ -513,9 +513,9 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
             }
         }
 
-        // Un délai fixe ne suffit pas : selon la machine et l'application visée,
-        // la reprise du focus prend de 50 ms à plusieurs centaines. On attend donc
-        // que l'app cible soit réellement au premier plan avant d'envoyer ⌘V.
+        // A fixed delay is not enough: depending on the machine and the target
+        // application, focus comes back anywhere from 50 ms to several hundred. So
+        // wait until the target really is frontmost before sending ⌘V.
         waitForFocus(target, remaining: 30) {
             Paster.sendCommandV()
         }
@@ -532,7 +532,7 @@ final class PopupController: NSObject, NSTableViewDataSource, NSTableViewDelegat
             || (front?.processIdentifier != myPid && remaining <= 0)
 
         if ready || remaining <= 0 {
-            // Petite marge pour que le champ de saisie ait repris le curseur.
+            // Small margin so the text field has taken the caret back.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.06, execute: action)
             return
         }

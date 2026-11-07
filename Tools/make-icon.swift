@@ -1,6 +1,6 @@
 import AppKit
 
-// Dessine l'icône de l'app : fond dégradé arrondi + glyphe presse-papiers.
+// Draws the app icon: rounded gradient background + clipboard glyph.
 func drawIcon(size: CGFloat) -> NSBitmapImageRep? {
     guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size), pixelsHigh: Int(size),
                                      bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
@@ -18,7 +18,7 @@ func drawIcon(size: CGFloat) -> NSBitmapImageRep? {
     ])
     gradient?.draw(in: path, angle: -90)
 
-    // Trois feuillets décalés, évoquant l'historique multiple.
+    // Three offset sheets, suggesting a stack of past copies.
     let sheetW = rect.width * 0.46
     let sheetH = rect.height * 0.56
     let offsets: [(CGFloat, CGFloat, CGFloat)] = [(-0.10, 0.10, 0.35), (-0.03, 0.03, 0.6), (0.05, -0.05, 1.0)]
@@ -31,7 +31,7 @@ func drawIcon(size: CGFloat) -> NSBitmapImageRep? {
         p.fill()
     }
 
-    // Lignes de texte sur le feuillet de devant
+    // Text lines on the front sheet
     let front = NSRect(x: rect.midX - sheetW / 2 + rect.width * 0.05,
                        y: rect.midY - sheetH / 2 - rect.height * 0.05,
                        width: sheetW, height: sheetH)
@@ -54,4 +54,4 @@ for px in [16, 32, 64, 128, 256, 512, 1024] {
           let data = rep.representation(using: .png, properties: [:]) else { continue }
     try? data.write(to: URL(fileURLWithPath: "\(outDir)/icon_\(px).png"))
 }
-print("icônes générées")
+print("icons generated")

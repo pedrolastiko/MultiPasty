@@ -1,9 +1,9 @@
 import AppKit
 import Carbon.HIToolbox
 
-/// Simule ⌘V dans l'application de premier plan.
+/// Synthesises ⌘V in the frontmost application.
 enum Paster {
-    /// L'autorisation Accessibilité est nécessaire pour envoyer des événements clavier.
+    /// The Accessibility permission is required to post keyboard events.
     static var isTrusted: Bool {
         AXIsProcessTrusted()
     }
