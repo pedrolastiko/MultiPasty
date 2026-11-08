@@ -8,6 +8,7 @@
     <img src="https://img.shields.io/badge/swift-6.0-F05138?style=flat-square" alt="swift">
     <img src="https://img.shields.io/badge/dependencies-none-3B6FE0?style=flat-square" alt="dependencies">
     <img src="https://img.shields.io/badge/network-never-3B6FE0?style=flat-square" alt="offline">
+    <a href="https://github.com/pedrolastiko/MultiPasty/releases/latest"><img src="https://img.shields.io/github/v/release/pedrolastiko/MultiPasty?style=flat-square&color=3B6FE0" alt="release"></a>
     <a href="LICENSE"><img src="https://img.shields.io/github/license/pedrolastiko/MultiPasty?style=flat-square&color=8A94A0" alt="licence"></a>
   </p>
 </div>
@@ -26,7 +27,33 @@ networking code anywhere in the project.
 
 ---
 
-## Install
+## Download
+
+[**MultiPasty 1.0**](https://github.com/pedrolastiko/MultiPasty/releases/latest) — universal binary, 368 KB zipped.
+
+The app is signed ad hoc and **not notarised by Apple**, so macOS quarantines it
+on download and refuses the first launch. One command clears that:
+
+```bash
+# after unzipping, with MultiPasty.app in ~/Downloads
+mv ~/Downloads/MultiPasty.app /Applications/
+xattr -dr com.apple.quarantine /Applications/MultiPasty.app
+open /Applications/MultiPasty.app
+```
+
+Check what you downloaded before you run it:
+
+```bash
+shasum -a 256 MultiPasty-1.0.zip
+# 935e548e251656bbfb17c96ddd67779fedd1704b8bc0d35d59d9bb86495f3671
+```
+
+> [!NOTE]
+> Notarisation requires a paid Apple Developer account, which this project does
+> not have. Building from source skips the quarantine entirely, and takes about
+> fifteen seconds.
+
+## Build from source
 
 ```bash
 git clone https://github.com/pedrolastiko/MultiPasty.git
@@ -193,7 +220,8 @@ to a second, and presses ⌘V once the target is genuinely in front.
 
 ## Planned
 
-- [ ] A release build, signed and notarised, so there is something to download
+- [x] A downloadable build, so Xcode is not required
+- [ ] Signing and notarisation, so macOS opens it without the quarantine step
 - [ ] Plain-text paste, stripping formatting
 - [ ] A configurable shortcut rather than four presets
 - [ ] Excluding chosen applications from capture
